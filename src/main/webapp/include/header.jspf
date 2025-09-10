@@ -1,0 +1,25 @@
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+
+<div class="header">
+  <div class="inner">
+    <a href="${pageContext.request.contextPath}/top" class="logo">高速バス予約</a>
+    <div class="login">
+      <c:choose>
+        <c:when test="${sessionScope.role == 'COMPANY'}">
+          <span>${sessionScope.companyName} さん</span>
+          <a href="<c:url value='/company' />">会社</a>
+          <a href="<c:url value='/auth/logout' />">ログアウト</a>
+        </c:when>
+        <c:when test="${sessionScope.role == 'ADMIN'}">
+            <a href="${pageContext.request.contextPath}/admin">管理</a>
+            <a href="${pageContext.request.contextPath}/auth/logout">ログアウト</a>
+        </c:when>
+        <c:otherwise>
+            <a href="${pageContext.request.contextPath}/auth/login">ログイン</a>
+        </c:otherwise>
+      </c:choose>
+      <a href="<c:url value='/cancel.jsp'/>">予約キャンセル</a>
+    </div>
+  </div>
+</div>
