@@ -15,7 +15,7 @@
     <tr><th>種別</th><td>${trip.type}</td></tr>
     <tr><th>残席</th><td>${trip.availableSeats}/${trip.capacity}</td></tr>
   </table>
-  <form action="${pageContext.request.contextPath}/reservation" method="get">
+  <form action="${pageContext.request.contextPath}/reservation" method="get" style="margin: 0 auto;width: fit-content;">
     <input type="hidden" name="tripId" value="${trip.id}">
     <button type="submit">予約へ進む</button>
   </form> 
