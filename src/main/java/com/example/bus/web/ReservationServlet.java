@@ -64,6 +64,7 @@ public class ReservationServlet extends HttpServlet {
         String phone = req.getParameter("phone");
 
         trip.reserveSeat();
+        tripDAO.update(trip);
 
         BusReservation reservation = reservationDAO.add(tripId, name, phone);
 

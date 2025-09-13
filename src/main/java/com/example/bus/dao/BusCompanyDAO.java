@@ -13,6 +13,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import com.example.bus.model.BusCompany;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 
 public class BusCompanyDAO {
@@ -21,7 +22,7 @@ public class BusCompanyDAO {
     private static Map<Integer, BusCompany> companies = new HashMap<>();
     private static final AtomicInteger sequence = new AtomicInteger(1);
 
-    private final Gson gson = new Gson();
+    private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
     public BusCompanyDAO() {
         load();
@@ -65,7 +66,7 @@ public class BusCompanyDAO {
             File file = new File(DATA_FILE);
             file.getParentFile().mkdirs();
             try (FileWriter writer = new FileWriter(file)) {
-                gson.toJson(companies, writer);
+                gson.toJson(new ArrayList<>(companies.values()), writer);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -78,12 +79,16 @@ public class BusCompanyDAO {
             if (!file.exists()) return;
 
             try (FileReader reader = new FileReader(file)) {
-                Type type = new TypeToken<Map<Integer, BusCompany>>() {}.getType();
-                companies = gson.fromJson(reader, type);
-                if (companies == null) companies = new HashMap<>();
-
-                int maxId = companies.keySet().stream().max(Integer::compareTo).orElse(0);
-                sequence.set(maxId + 1);
+                Type listType = new TypeToken<List<BusCompany>>() {}.getType();
+                List<BusCompany> loaded = gson.fromJson(reader, listType);
+                if (loaded != null) {
+                    companies.clear();
+                    for (BusCompany c : loaded) {
+                        companies.put(c.getId(), c);
+                    }
+                    int maxId = companies.keySet().stream().max(Integer::compareTo).orElse(0);
+                    sequence.set(maxId + 1);
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();

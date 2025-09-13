@@ -59,6 +59,7 @@ public class CancelServlet extends HttpServlet {
         BusTrip trip = tripDAO.findById(reservation.getTripId()).orElse(null);
         if (trip != null) {
             trip.cancelSeat();
+            tripDAO.update(trip);
         }
 
         reservationDAO.delete(reservation.getId());

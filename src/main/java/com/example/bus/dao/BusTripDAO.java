@@ -41,6 +41,11 @@ public class BusTripDAO {
         load();
     }
 
+    public void update(BusTrip trip) {
+        trips.put(trip.getId(), trip);
+        save();
+    }
+
     public BusTrip add(int companyId, String fromArea, String toArea,
                        LocalDateTime departure, LocalDateTime arrival,
                        LocalDateTime limit, int capacity) {

@@ -13,8 +13,8 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.example.bus.model.BusReservation;
-import com.example.bus.model.BusTrip;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 
 public class BusReservationDAO {
@@ -23,8 +23,7 @@ public class BusReservationDAO {
     private static Map<Integer, BusReservation> reservations = new HashMap<>();
     private static final AtomicInteger sequence = new AtomicInteger(1);
 
-    private final BusTripDAO tripDAO = new BusTripDAO();
-    private final Gson gson = new Gson();
+    private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
     public BusReservationDAO() {
         load();
@@ -60,26 +59,8 @@ public class BusReservationDAO {
         return new ArrayList<>(reservations.values());
     }
 
-    public synchronized boolean cancel(String code, String phone) {
-        Optional<BusReservation> match = reservations.values().stream()
-                .filter(r -> r.getPublicCode().equals(code) && r.getPhone().equals(phone))
-                .findFirst();
-
-        if (match.isPresent()) {
-            BusReservation r = match.get();
-            reservations.remove(r.getId());
-
-            save();
-            return true;
-        }
-        return false;
-    }
-
     public synchronized void delete(int id) {
-        BusReservation r = reservations.remove(id);
-        if (r != null) {
-            tripDAO.findById(r.getTripId()).ifPresent(BusTrip::cancelSeat);
-        }
+        reservations.remove(id);
         save();
     }
 
@@ -88,7 +69,7 @@ public class BusReservationDAO {
             File file = new File(DATA_FILE);
             file.getParentFile().mkdirs(); // dataディレクトリ作成
             try (FileWriter writer = new FileWriter(file)) {
-                gson.toJson(reservations, writer);
+                gson.toJson(new ArrayList<>(reservations.values()), writer);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -101,12 +82,16 @@ public class BusReservationDAO {
             if (!file.exists()) return;
 
             try (FileReader reader = new FileReader(file)) {
-                Type type = new TypeToken<Map<Integer, BusReservation>>() {}.getType();
-                reservations = gson.fromJson(reader, type);
-                if (reservations == null) reservations = new HashMap<>();
-
-                int maxId = reservations.keySet().stream().max(Integer::compareTo).orElse(0);
-                sequence.set(maxId + 1);
+                Type listType = new TypeToken<List<BusReservation>>() {}.getType();
+                List<BusReservation> loaded = gson.fromJson(reader, listType);
+                if (loaded != null) {
+                    reservations.clear();
+                    for (BusReservation r : loaded) {
+                        reservations.put(r.getId(), r);
+                    }
+                    int maxId = reservations.keySet().stream().max(Integer::compareTo).orElse(0);
+                    sequence.set(maxId + 1);
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();

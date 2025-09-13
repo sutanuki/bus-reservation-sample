@@ -13,6 +13,8 @@ public class BusTrip {
     private int capacity;
     private int availableSeats;
 
+    public BusTrip() {}
+
     public BusTrip(int id, int companyId, String fromArea, String toArea,
                    LocalDateTime departureTime, LocalDateTime arrivalTime,
                    LocalDateTime limitTime, int capacity) {
@@ -36,9 +38,10 @@ public class BusTrip {
     public LocalDateTime getLimitTime() { return limitTime; }
     public int getCapacity() { return capacity; }
     public int getAvailableSeats() { return availableSeats; }
+    public void setAvailableSeats(int availableSeats) { this.availableSeats = availableSeats; }
 
     public String getType() {
-        return (departureTime.getHour() < 18) ? "昼行" : "夜行";
+        return (departureTime != null && departureTime.getHour() < 18) ? "昼行" : "夜行";
     }
 
     public void reserveSeat() {
