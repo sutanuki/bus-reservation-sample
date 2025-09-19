@@ -75,15 +75,19 @@ public class BusTripDAO {
         save();
     }
 
-    public List<BusTrip> search(String fromArea, String toArea,
-                                LocalDateTime date, String type) {
-        return trips.values().stream()
-                .filter(t -> (fromArea == null || t.getFromArea().equalsIgnoreCase(fromArea)))
-                .filter(t -> (toArea == null || t.getToArea().equalsIgnoreCase(toArea)))
-                .filter(t -> (date == null || t.getDepartureTime().toLocalDate().equals(date.toLocalDate())))
-                .filter(t -> (type == null || t.getType().equals(type)))
-                .collect(Collectors.toList());
-    }
+public List<BusTrip> search(String fromArea, String toArea,
+                            LocalDateTime from, LocalDateTime to, String type) {
+    return trips.values().stream()
+        .filter(t -> fromArea == null || fromArea.isEmpty() || t.getFromArea().equals(fromArea))
+        .filter(t -> toArea == null || toArea.isEmpty() || t.getToArea().equals(toArea))
+        .filter(t -> {
+            if (from == null || to == null) return true;
+            LocalDateTime dep = t.getDepartureTime();
+            return !dep.isBefore(from) && !dep.isAfter(to);
+        })
+        .filter(t -> type == null || type.isEmpty() || t.getType().equals(type))
+        .collect(Collectors.toList());
+}
 
     private static void save() {
         try {

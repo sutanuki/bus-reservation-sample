@@ -52,8 +52,14 @@ public class SearchServlet extends HttpServlet {
             date = LocalDate.parse(dateStr);
         }
 
-        List<BusTrip> results = tripDAO.search(fromArea, toArea,
-                date != null ? date.atStartOfDay() : null, type);
+        LocalDateTime from = null;
+        LocalDateTime to = null;
+        if (date != null) {
+            from = date.atTime(3, 0);
+            to = date.plusDays(1).atTime(2, 59, 59);
+        }
+
+        List<BusTrip> results = tripDAO.search(fromArea, toArea, from, to, type);
 
         List<BusTripDto> dtos = results.stream()
             .filter(t -> t.getLimitTime().isAfter(LocalDateTime.now()))
