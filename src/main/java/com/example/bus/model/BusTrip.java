@@ -41,8 +41,14 @@ public class BusTrip {
     public void setAvailableSeats(int availableSeats) { this.availableSeats = availableSeats; }
 
     public String getType() {
-        return (departureTime != null && departureTime.getHour() < 18) ? "昼行" : "夜行";
+        int hour = departureTime.getHour();
+        if (hour >= 18 || hour <= 2) {
+            return "夜行";
+        } else {
+            return "昼行";
+        }
     }
+
 
     public void reserveSeat() {
         if (availableSeats > 0) availableSeats--;
